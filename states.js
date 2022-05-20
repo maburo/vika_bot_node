@@ -45,7 +45,7 @@ function eventState(name, text) {
             sendMessage({
                 chat_id: ctx.chatId,
                 text,
-                reply_markup: RemoveKeyboard()
+                reply_markup: { remove_keyboard: true }
             });
 
             sendPhoto({
