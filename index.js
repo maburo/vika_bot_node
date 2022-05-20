@@ -44,26 +44,30 @@ app.get("/", (req, res) => {
 app.use('/assets', express.static('./assets'))
 
 app.post(`/${hookPath}`, (req, res) => {
-    const body = req.body
-    console.log(body);
-    const chatId = body.message.chat.id
+    try {
+        const body = req.body
+        console.log(body);
+        const chatId = body.message.chat.id
 
-    const user = getUser(body.message);
-    const context = {
-        chatId,
-        user
-    };
+        const user = getUser(body.message);
+        const context = {
+            chatId,
+            user
+        };
 
-    let nextStateName = user.state.nextState(body, context);
-    while (nextStateName) {
-        const nextState = states.find(s => s.name === nextStateName)
+        let nextStateName = user.state.nextState(body, context);
+        while (nextStateName) {
+            const nextState = states.find(s => s.name === nextStateName)
 
-        nextStateName = nextState.action(context);
-        user.prevState = user.state
-        user.state = nextState
+            nextStateName = nextState.action(context);
+            user.prevState = user.state
+            user.state = nextState
+        }
+
+        console.log(`chat id ${chatId}`);
+    } catch(err) {
+        console.error(err);
     }
-
-    console.log(`chat id ${chatId}`);
 
     res.sendStatus(200)
 })
