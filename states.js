@@ -94,6 +94,16 @@ const states = [
         }
     },
     {
+        name: "companion",
+        action: ctx => {
+            sendMessage({
+                text: "companion",
+                chat_id: ctx.chatId
+            })
+        },
+        nextState: () => "start"
+    },
+    {
         name: "start-test",
         action: ctx => {
             sendMessage({
@@ -142,15 +152,16 @@ const states = [
                 case "Точно нет":
                     return "bad-event";
                 case "Рискнуть":
+                    sendDice(ctx.chatId)
                     return "random-event";
                 default: 
                     return sendDefaultMessage(ctx);
             }
         }
     },
-    eventState('good-event'),
-    eventState('bad-event'),
-    eventState('random-event'),
+    eventState('good-event', 'Поздравляем вам досталось - полет на воздушном шаре над Питером'),
+    eventState('bad-event', 'Поздравляем вам досталось - один час кормления голубей на крестовском'),
+    eventState('random-event', 'Поздравляем вам досталось - мастер класс по таксидермии'),
     {
         name: "restart",
         action: ctx => {
