@@ -6,7 +6,7 @@ import states from './states.js';
 
 const port = process.env.PORT || 3001;
 const token = process.env.TOKEN || '';
-const baseUrl = process.env.APP_URL || 'https://a904-178-66-158-184.eu.ngrok.io'
+const baseUrl = process.env.APP_URL || 'https://1cd9-178-66-158-184.eu.ngrok.io'
 
 const hookPath = "telegram/hook"
 const telegramUrl = `https://api.telegram.org/bot${token}`
@@ -43,10 +43,10 @@ app.get("/", (req, res) => {
 
 app.use('/assets', express.static('./assets'))
 
-app.post(`/${hookPath}`, (req, res) => {
+app.post(`/${hookPath}`, async (req, res) => {
     try {
         const body = req.body
-        console.log(body);
+        // console.log(body);
         const chatId = body.message.chat.id
 
         const user = getUser(body.message);
@@ -55,11 +55,13 @@ app.post(`/${hookPath}`, (req, res) => {
             user
         };
 
-        let nextStateName = user.state.nextState(body, context);
-        while (nextStateName) {
+        let nextStateName = await user.state.nextState(body, context);
+        while (nextStateName && nextStateName !== '') {
             const nextState = states.find(s => s.name === nextStateName)
 
-            nextStateName = nextState.action(context);
+            console.log(`${user.state.name} >> ${nextStateName}`);
+
+            nextStateName = await nextState.action(context);
             user.prevState = user.state
             user.state = nextState
         }
@@ -89,16 +91,18 @@ async function setWebhook() {
 }
 
 export async function sendDefaultMessage(ctx) {
-    sendMessage({
+    console.log('sendDefaultMessage');
+
+    await sendMessage({
         chat_id: ctx.chatId,
         text: 'Что что?'
     });
 
-    console.log(`state: ${ctx.user.currentState.name}`)
+    console.log(`state: ${ctx.user?.state?.name}`)
 
     ctx.user.state.action(ctx);
 
-    return ""
+    return ''
 }
 
 export async function sendMessage(message) {
