@@ -90,15 +90,15 @@ function eventState(name) {
         action: async ctx => {
             const event = events[Math.floor(Math.random() * events.length)];
 
+            await sendPhoto({
+                chat_id: ctx.chatId,
+                photo: getPhoto(event.img)
+            });
+
             await sendMessage({
                 chat_id: ctx.chatId,
                 text: event.text,
                 reply_markup: { remove_keyboard: true }
-            });
-
-            await sendPhoto({
-                chat_id: ctx.chatId,
-                photo: getPhoto(event.img)
             });
 
             return "restart"
@@ -215,7 +215,7 @@ const states = [
             await sendMessage({
                 chat_id: ctx.chatId,
                 text: "Подходит?",
-                reply_markup: keyboard("Да", "Нет, хочу другое", "Пройти тест заново")
+                reply_markup: keyboard("Да", "Нет, хочу другое", "Найти компанию")
             });
         },
         nextState: async (action, ctx) => {
@@ -224,9 +224,8 @@ const states = [
                     return "welcome";
                 case "Нет, хочу другое":
                     return "event";
-                case "Пройти тест заново":
-                    ctx.user.testResult = "";
-                    return "start-test";
+                case "Найти компанию":
+                    return "companion";
                 default:
                     return await sendDefaultMessage(ctx);
             }
