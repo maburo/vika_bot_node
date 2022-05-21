@@ -6,7 +6,7 @@ import states from './states.js';
 
 const port = process.env.PORT || 3001;
 const token = process.env.TOKEN || '';
-const baseUrl = process.env.APP_URL || 'https://1616-178-66-158-184.eu.ngrok.io'
+const baseUrl = process.env.APP_URL || 'https://a904-178-66-158-184.eu.ngrok.io'
 
 const hookPath = "telegram/hook"
 const telegramUrl = `https://api.telegram.org/bot${token}`
@@ -76,14 +76,15 @@ app.listen(port, () => console.log(`Example app listening on port ${port}!`));
 
 async function setWebhook() {
     const hook = `${telegramUrl}/setWebhook`
+    console.log(hook);
     await axios.post(hook, {
         url: `${baseUrl}/${hookPath}`
     })
     .then(resp => {
-        console.log(resp.data);
+        console.log('setWebhook', resp.data);
     })
     .catch(err => {
-        console.error(err.data);
+        console.error('setWebhook ERROR', err.code, err.data);
     })
 }
 
@@ -102,8 +103,8 @@ export async function sendDefaultMessage(ctx) {
 
 export async function sendMessage(message) {
     await axios.post(`${telegramUrl}/sendMessage`, message)
-    .then(resp => console.log(resp.data))
-    .catch(err => console.error(err.data))
+    // .then(resp => console.log(resp.data))
+    .catch(err => console.error('sendMessage ERROR', err.data))
 }
 
 export async function sendDice(chatId) {
@@ -112,18 +113,18 @@ export async function sendDice(chatId) {
         emoji:  "\uD83C\uDFB2",
         reply_markup: { remove_keyboard: true }
     })
-    .then(resp => console.log(resp.data))
-    .catch(err => console.error(err.data))
+    // .then(resp => console.log(resp.data))
+    .catch(err => console.error('sendDice ERROR', err.data))
 }
 
 export async function sendPhoto(message) {
     return await axios.post(`${telegramUrl}/sendPhoto`, message)
-    then(resp => {
+    .then(resp => {
         // resp.data.photo[resp.data.photo.length - 1]
         // response.body<Message>().photo?.last()?.let {
         //     photos.put(message.photo, it.file_id)
         // }
     })
-    .catch(err => console.error(err.data))
+    .catch(err => console.error('sendPhoto ERROR', err.data))
 
 }

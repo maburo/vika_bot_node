@@ -38,7 +38,7 @@ function testState(name, img, nextState) {
     };
 }
 
-function eventState(name, text) {
+function eventState(name, text, image, url) {
     return {
         name,
         action: ctx => {
@@ -50,8 +50,8 @@ function eventState(name, text) {
 
             sendPhoto({
                 chat_id: ctx.chatId,
-                photo: getPhoto("event.jpg"),
-                reply_markup: inlineKeyboard({text: "Перейти на сайт", url: "https://www.afisha.ru/"})                
+                photo: getPhoto(image),
+                reply_markup: inlineKeyboard({text: "Перейти на сайт", url})
             });
 
             return "restart"
@@ -159,9 +159,16 @@ const states = [
             }
         }
     },
-    eventState('good-event', 'Поздравляем вам досталось - полет на воздушном шаре над Питером'),
-    eventState('bad-event', 'Поздравляем вам досталось - один час кормления голубей на крестовском'),
-    eventState('random-event', 'Поздравляем вам досталось - мастер класс по таксидермии'),
+    eventState('good-event', 'Собрание приключений клоуна-мудреца Славы Полунина.\n' +
+    'Интерактивное пространство, где можно оказаться в декорациях пустыни или побороться со снежной бурей, погрузиться в детство Славы, побыть клоуном, посетить Академию Дураков и услышать лекции настоящих академиков.\n' + 
+    '\n'+
+    'Атмосфера выставки позволяет не бояться показаться смешным или нелепым.\n' +
+    'Предлагает помечтать так же безгранично, как это умеют делать дети.  ', +
+    '\n' +
+    '18 мая по 3 июля в московском Манеже ',
+    'event_1.jpg', 'https://afisha.yandex.ru/moscow/art/zia-vozdushnye-zamki-slavy-polunina?source=search-page&schedule-date=2022-06-07'),
+    eventState('bad-event', 'Поздравляем вам досталось - один час кормления голубей на крестовском', 'event_1.jpg', 'https://afisha.yandex.ru/moscow/art/zia-vozdushnye-zamki-slavy-polunina?source=search-page&schedule-date=2022-06-07'),
+    eventState('random-event', 'Поздравляем вам досталось - мастер класс по таксидермии', 'event_1.jpg', 'https://afisha.yandex.ru/moscow/art/zia-vozdushnye-zamki-slavy-polunina?source=search-page&schedule-date=2022-06-07'),
     {
         name: "restart",
         action: ctx => {
