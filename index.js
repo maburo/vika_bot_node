@@ -6,7 +6,7 @@ import states from './states.js';
 
 const port = process.env.PORT || 3001;
 const token = process.env.TOKEN || '';
-const baseUrl = process.env.APP_URL || 'https://1cd9-178-66-158-184.eu.ngrok.io'
+const baseUrl = process.env.APP_URL || 'https://d3b7-178-66-158-184.eu.ngrok.io'
 
 const hookPath = "telegram/hook"
 const telegramUrl = `https://api.telegram.org/bot${token}`
