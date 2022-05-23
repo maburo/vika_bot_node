@@ -6,7 +6,7 @@ import states from './states.js';
 
 const port = process.env.PORT || 3001;
 const token = process.env.TOKEN || '';
-const baseUrl = process.env.APP_URL || 'https://d3b7-178-66-158-184.eu.ngrok.io'
+const baseUrl = process.env.APP_URL || 'https://7a5f-178-66-158-184.eu.ngrok.io'
 
 const hookPath = "telegram/hook"
 const telegramUrl = `https://api.telegram.org/bot${token}`
@@ -37,7 +37,7 @@ const app = express();
 
 app.use(bodyParser.json());
 
-app.get("/", (req, res) => {    
+app.get("/", (req, res) => {
     res.send("ok")
 });
 
@@ -46,7 +46,7 @@ app.use('/assets', express.static('./assets'))
 app.post(`/${hookPath}`, async (req, res) => {
     try {
         const body = req.body
-        // console.log(body);
+        console.log(body);
         const chatId = body.message.chat.id
 
         const user = getUser(body.message);
@@ -131,4 +131,24 @@ export async function sendPhoto(message) {
     })
     .catch(err => console.error('sendPhoto ERROR', err.data))
 
+}
+
+export function findCompany(ctx) {
+    if (users.length === 1) {
+        return;
+    }
+
+    let user = null
+    do {
+        const idx = Math.floor(Math.random() * users.length);
+        user = users[idx];
+    } while (user === null || user === ctx.user);
+    
+    return user;
+}
+
+export async function createChatInviteLink(ctx) {
+    return await axios.post(`${telegramUrl}/createChatInviteLink`, {
+        chat_id: ctx.chatId
+    })
 }

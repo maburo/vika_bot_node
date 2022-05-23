@@ -1,4 +1,4 @@
-import { sendMessage, sendPhoto, sendDice, sendDefaultMessage, getPhoto } from './index.js';
+import { sendMessage, sendPhoto, sendDice, sendDefaultMessage, getPhoto, createChatInviteLink } from './index.js';
 
 function keyboard(...keys) {
     return { keyboard: [[...keys]], resize_keyboard: true };
@@ -80,6 +80,25 @@ const events = [
         'До 7 августа в ММСИ на Петровке (https://afisha.yandex.ru/moscow/art/places/moskovskii-muzei-sovremennogo-iskusstva-na-petrovke)\n ' + 
         '\n ' + 
         'https://afisha.yandex.ru/moscow/art/prostye-formy?source=rubric'
+    },
+    {
+        img: 'event_9.jpg',
+        text: 
+        'Выставка для тех, кто ловит себя на мысли:” Стоит поменьше сидеть в телефоне”. \n' +
+        'Мэт Коллишоу с опорой на науку исследует, как современные технологии меняют наше мироощущение, манипулируя сознанием и программируя наши действия. Через оптические иллюзии и подвижные скульптуры Мэт Коллишоу исследует человеческий феномен привыкания\n' +
+        'Механические скелеты птиц, зоотроп с колибри и другие работы вовлекут своей изящностью и метафоричностью в рассуждения о значении цифрового симулякра мира…\n' +
+        '\n' +
+        'до 25.06 в галерее Гари Татинцяна https://clck.ru/hUcUa'
+    },
+    {
+        img: 'event_10.jpg',
+        text: 
+        'Научно-эксперементальный проект прямо на крыше Дарвиновского музея.\n' +
+        '«Москва. Среда обитания» предполагает исследование и переосмысление городской среды как специфической материи, являющейся необходимым условием и важным обстоятельством жизни всех живых существ в Мегаполисе. \n' +
+        'Экспозиция состоит из объектов живописи, граффити, уличного искусства, каллиграфии, скульптур и инсталляций. \n' +
+        '\n' +
+        'до  11 сентября в Дарвинвском музее\n' +
+        'https://afisha.yandex.ru/moscow/art/moskva-sreda-obitaniia?source=rubric'
     }
 ]
 
@@ -113,22 +132,36 @@ function testState(name, img, nextState) {
     };
 }
 
+function getEventIds() {
+    const ids = new Set();
+    
+    while (ids.size < 3) {
+        const id = Math.floor(Math.random() * events.length);
+        if (ids.has(id)) continue;
+        else ids.add(id);
+    }
+
+    console.log(ids);
+
+    return [...ids].map(id => events[id]);
+}
+
 function eventState(name) {
     return {
         name,
         action: async ctx => {
-            const event = events[Math.floor(Math.random() * events.length)];
-
-            await sendPhoto({
-                chat_id: ctx.chatId,
-                photo: getPhoto(event.img)
-            });
-
-            await sendMessage({
-                chat_id: ctx.chatId,
-                disable_web_page_preview: true,
-                text: event.text,
-                reply_markup: { remove_keyboard: true }
+            getEventIds().forEach(async event => {
+                await sendPhoto({
+                    chat_id: ctx.chatId,
+                    photo: getPhoto(event.img)
+                });
+    
+                await sendMessage({
+                    chat_id: ctx.chatId,
+                    disable_web_page_preview: true,
+                    text: event.text,
+                    reply_markup: { remove_keyboard: true }
+                });
             });
 
             return "restart"
@@ -156,7 +189,12 @@ const states = [
                     'Я бот мобильного приложения Art & Freedom. Оно позволяет легко находить выставки современного искусства, которые подходят именно тебе, а еще помогает найти компанию если тебе одиноко. \n' + 
                     '\n' + 
                     'Пока мои неспешные разработчики готовят к выходу приложение, я в меру своих возможностей, проведу тебя через лабиринты современного искусства к событиям, которые всколыхнут твое сердечко.',
-                    reply_markup: keyboard("Найти компанию", "Выбрать событие")
+                    reply_markup: keyboard(
+                        "Найти компанию", 
+                        "Выбрать событие", 
+                        // "send link",
+                        // {text: 'Контакт', request_contact: true}
+                    ),
                 }
             );
         },
@@ -167,6 +205,9 @@ const states = [
                 case "Выбрать событие":
                     if (ctx.user.testResult === '') return 'start-test'
                     else return 'event'
+                // case "send link":
+                //     createChatInviteLink(ctx);
+                //     return "event"
                 default:
                     return await sendDefaultMessage(ctx)
             }
@@ -175,11 +216,22 @@ const states = [
     {
         name: "companion",
         action: async ctx => {
-            await sendMessage({
-                text: "companion",
-                disable_web_page_preview: true,
-                chat_id: ctx.chatId
-            })
+            const user = findCompany(ctx);
+            if (!user) {
+                await sendMessage({
+                    text: "Похоже тут нет никого кроме тебя 😔",
+                    disable_web_page_preview: true,
+                    chat_id: ctx.chatId
+                })
+            }
+            else {
+                await sendMessage({
+                    text: `Мы нашли для вас пару - это @${user.username}`,
+                    disable_web_page_preview: true,
+                    chat_id: ctx.chatId
+                })
+            }
+            
         },
         nextState: () => "start"
     },
