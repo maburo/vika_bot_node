@@ -3,10 +3,13 @@ import bodyParser from "body-parser";
 import axios from "axios";
 import states from './states.js';
 
-
 const port = process.env.PORT || 3001;
 const token = process.env.TOKEN || '';
-const baseUrl = process.env.APP_URL || 'https://2221-178-66-158-184.eu.ngrok.io'
+const baseUrl = process.env.APP_URL || 'https://1cff-178-66-158-184.eu.ngrok.io'
+
+if (token === '') {
+    process.exit(-1)
+}
 
 const hookPath = "telegram/hook"
 const telegramUrl = `https://api.telegram.org/bot${token}`
@@ -56,12 +59,15 @@ app.post(`/${hookPath}`, async (req, res) => {
         };
 
         let nextStateName = await user.state.nextState(body, context);
+
         while (nextStateName && nextStateName !== '') {
             const nextState = states.find(s => s.name === nextStateName)
 
             console.log(`${user.state.name} >> ${nextStateName}`);
 
             nextStateName = await nextState.action(context);
+    
+
             user.prevState = user.state
             user.state = nextState
         }
@@ -86,7 +92,7 @@ async function setWebhook() {
         console.log('setWebhook', resp.data);
     })
     .catch(err => {
-        console.error('setWebhook ERROR', err.code, err.data);
+        console.error('setWebhook ERROR', err.code, err);
     })
 }
 
@@ -97,8 +103,6 @@ export async function sendDefaultMessage(ctx) {
         chat_id: ctx.chatId,
         text: 'Что что?'
     });
-
-    console.log(`state: ${ctx.user?.state?.name}`)
 
     ctx.user.state.action(ctx);
 
@@ -134,14 +138,16 @@ export async function sendPhoto(message) {
 }
 
 export function findCompany(ctx) {
-    if (users.length === 1) {
+    if (users.size === 1) {
         return;
     }
 
+    const usersList = [...users.values()];
     let user = null
+
     do {
-        const idx = Math.floor(Math.random() * users.length);
-        user = users[idx];
+        const idx = Math.floor(Math.random() * users.size);
+        user = usersList[idx];
     } while (user === null || user === ctx.user);
     
     return user;

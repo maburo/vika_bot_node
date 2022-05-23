@@ -173,6 +173,7 @@ function eventState(name) {
 const states = [
     {
         name: "start",
+        action: () => "welcome",
         nextState: () => "welcome",
     },
     {
@@ -220,23 +221,33 @@ const states = [
         name: "companion",
         action: async ctx => {
             const user = findCompany(ctx);
+
             if (!user) {
                 await sendMessage({
                     text: "Похоже тут нет никого кроме тебя 😔",
                     disable_web_page_preview: true,
-                    chat_id: ctx.chatId
+                    chat_id: ctx.chatId,
+                    reply_markup: keyboard("Продолжить")
                 })
             }
             else {
                 await sendMessage({
                     text: `Мы нашли для вас пару - это @${user.username}`,                    
                     disable_web_page_preview: true,
-                    chat_id: ctx.chatId
+                    chat_id: ctx.chatId,
+                    reply_markup: keyboard("Продолжить")
                 })
             }
             
         },
-        nextState: () => "start"
+        nextState: async (action, ctx) => {
+            switch (action.message.text) {
+                case "Продолжить":
+                    return "start";
+                default:
+                    return await sendDefaultMessage(ctx)
+            }
+        }
     },
     {
         name: "start-test",
