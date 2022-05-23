@@ -363,11 +363,11 @@ const states = [
             await sendPhoto({
                 chat_id: ctx.chatId,
                 photo: getPhoto('manifest.jpg'),
-                reply_markup: { remove_keyboard: true }
+                reply_markup: keyboard("Вернуться к тесту")
             });
         },
         nextState: async (action, ctx) => {
-            return 'welcome'
+            return 'start'
         }
     }
 ];
