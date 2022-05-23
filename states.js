@@ -1,4 +1,4 @@
-import { sendMessage, sendPhoto, sendDice, sendDefaultMessage, getPhoto, createChatInviteLink } from './index.js';
+import { sendMessage, sendPhoto, sendDice, sendDefaultMessage, getPhoto, createChatInviteLink, findCompany } from './index.js';
 
 function keyboard(...keys) {
     return { keyboard: [[...keys]], resize_keyboard: true };
