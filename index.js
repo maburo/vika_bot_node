@@ -6,7 +6,7 @@ import states from './states.js';
 
 const port = process.env.PORT || 3001;
 const token = process.env.TOKEN || '';
-const baseUrl = process.env.APP_URL || 'https://7a5f-178-66-158-184.eu.ngrok.io'
+const baseUrl = process.env.APP_URL || 'https://2221-178-66-158-184.eu.ngrok.io'
 
 const hookPath = "telegram/hook"
 const telegramUrl = `https://api.telegram.org/bot${token}`
@@ -129,7 +129,7 @@ export async function sendPhoto(message) {
         //     photos.put(message.photo, it.file_id)
         // }
     })
-    .catch(err => console.error('sendPhoto ERROR', err.data))
+    .catch(err => console.error('sendPhoto ERROR', message, err.data))
 
 }
 
